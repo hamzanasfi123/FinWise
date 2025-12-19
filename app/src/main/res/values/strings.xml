@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">FinWise</string>
+    <string name="welcome_title">Take Control of Your Finances</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="login_to_finwise">Login to FinWise</string>
+    <string name="dont_have_account">Don\'t have an account? Sign Up</string>
+    <string name="already_have_account">Already have an account? Login</string>
+    <string name="logout_confirmation">Are you sure you want to logout?</string>
+    <string name="exit_confirmation">Are you sure you want to exit the app?</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

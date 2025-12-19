@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/dashboardFragment"
+        android:icon="@android:drawable/ic_menu_my_calendar"
+        android:title="Dashboard" />
+
+    <item
+        android:id="@+id/transactionsFragment"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="Transactions" />
+
+    <item
+        android:id="@+id/debtsFragment"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="Debts" />
+
+    <item
+        android:id="@+id/forecastFragment"
+        android:icon="@android:drawable/ic_menu_today"
+        android:title="Forecast" />
+</menu>

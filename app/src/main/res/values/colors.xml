@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Launcher Colors -->
+    <color name="ic_launcher_background">#FF6200EE</color>
+
+    <!-- Brand Colors -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+
+
+    <!-- Basic Colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Semantic Colors -->
+    <color name="green">#FF4CAF50</color>
+    <color name="green_light">#FF81C784</color>
+    <color name="green_dark">#FF388E3C</color>
+    <color name="red">#FFF44336</color>
+
+    <!-- Material Colors -->
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+
+    <!-- Light Theme Colors -->
+    <color name="background_gray">#F5F5F5</color>
+    <color name="card_background">#FFFFFFFF</color>
+    <color name="text_primary">#333333</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_tertiary">#999999</color>
+    <color name="divider_color">#EEEEEE</color>
+</resources>
