@@ -12,7 +12,10 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.yourteam.finwise.R
@@ -26,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private val TAG = "FinWise"
     private lateinit var dbHelper: DatabaseHelper
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     // Notification permission launcher
     private val requestPermissionLauncher = registerForActivityResult(
@@ -94,14 +98,27 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupNavigation() {
         try {
-            val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
             // Get NavHostFragment and NavController
             val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
             val navController = navHostFragment.navController
 
+            // Define which destinations should be considered top-level
+            val appBarConfiguration = AppBarConfiguration(
+                setOf(
+                    R.id.dashboardFragment,
+                    R.id.transactionsFragment,
+                    R.id.debtsFragment,
+                    R.id.forecastFragment
+                )
+            )
+
             // Connect BottomNavigationView with NavController
             bottomNavigationView.setupWithNavController(navController)
+
+            // Set up ActionBar with NavController
+            setupActionBarWithNavController(navController, appBarConfiguration)
 
             Log.d(TAG, "📍 Navigation setup successful")
 
@@ -138,8 +155,20 @@ class MainActivity : AppCompatActivity() {
         try {
             val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
             val navController = navHostFragment.navController
-            navController.navigate(R.id.profileFragment)
-            Log.d(TAG, "📍 Navigating to ProfileFragment")
+
+            // Create navigation options to clear back stack and set launch mode
+            val navOptions = NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .setPopUpTo(R.id.dashboardFragment, false)
+                .build()
+
+            // Navigate to Profile
+            navController.navigate(R.id.profileFragment, null, navOptions)
+
+            // Clear bottom navigation selection
+            clearBottomNavigationSelection()
+
+            Log.d(TAG, "📍 Navigating to ProfileFragment from menu")
         } catch (e: Exception) {
             Log.e(TAG, "❌ Failed to navigate to ProfileFragment: ${e.message}")
             val userId = sharedPreferences.getLong("current_user_id", -1)
@@ -151,11 +180,68 @@ class MainActivity : AppCompatActivity() {
         try {
             val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
             val navController = navHostFragment.navController
-            navController.navigate(R.id.settingsFragment)
-            Log.d(TAG, "📍 Navigating to SettingsFragment")
+
+            // Create navigation options to clear back stack and set launch mode
+            val navOptions = NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .setPopUpTo(R.id.dashboardFragment, false)
+                .build()
+
+            // Navigate to Settings
+            navController.navigate(R.id.settingsFragment, null, navOptions)
+
+            // Clear bottom navigation selection
+            clearBottomNavigationSelection()
+
+            Log.d(TAG, "📍 Navigating to SettingsFragment from menu")
         } catch (e: Exception) {
             Log.e(TAG, "❌ Failed to navigate to SettingsFragment: ${e.message}")
             Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun clearBottomNavigationSelection() {
+        // Temporarily remove the listener to avoid conflicts
+        bottomNavigationView.setOnItemSelectedListener(null)
+
+        // Clear the selection
+        bottomNavigationView.selectedItemId = -1
+
+        // Restore the listener after a short delay
+        bottomNavigationView.postDelayed({
+            setupBottomNavigationListener()
+        }, 100)
+    }
+
+    private fun setupBottomNavigationListener() {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.dashboardFragment -> {
+                    // Navigate to Dashboard with proper back stack clearing
+                    val navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(R.id.dashboardFragment, false)
+                        .build()
+                    navController.navigate(R.id.dashboardFragment, null, navOptions)
+                    true
+                }
+                R.id.transactionsFragment -> {
+                    navController.navigate(R.id.transactionsFragment)
+                    true
+                }
+                R.id.debtsFragment -> {
+                    navController.navigate(R.id.debtsFragment)
+                    true
+                }
+                R.id.forecastFragment -> {
+                    navController.navigate(R.id.forecastFragment)
+                    true
+                }
+                else -> false
+            }
         }
     }
 
@@ -190,11 +276,32 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
         val navController = navHostFragment?.navController
 
-        if (navController?.currentDestination?.id != R.id.dashboardFragment) {
-            super.onBackPressed()
-        } else {
-            showExitConfirmation()
+        val currentDestination = navController?.currentDestination?.id
+
+        when (currentDestination) {
+            // If on Profile or Settings (menu destinations)
+            R.id.profileFragment, R.id.settingsFragment -> {
+                // Navigate back to Dashboard
+                navController?.navigate(R.id.dashboardFragment)
+
+                // Restore bottom navigation selection to Dashboard
+                bottomNavigationView.selectedItemId = R.id.dashboardFragment
+            }
+            // If on Dashboard
+            R.id.dashboardFragment -> {
+                showExitConfirmation()
+            }
+            // If on any other bottom nav fragment
+            else -> {
+                super.onBackPressed()
+            }
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+        val navController = navHostFragment?.navController
+        return navController?.navigateUp() ?: false
     }
 
     private fun showExitConfirmation() {

@@ -9,38 +9,93 @@
         android:id="@+id/dashboardFragment"
         android:name="com.yourteam.finwise.ui.main.DashboardFragment"
         android:label="Dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_dashboard">
+
+        <!-- Actions from Dashboard to other fragments -->
+        <action
+            android:id="@+id/action_dashboardFragment_to_transactionsFragment"
+            app:destination="@id/transactionsFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_debtsFragment"
+            app:destination="@id/debtsFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_forecastFragment"
+            app:destination="@id/forecastFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/transactionsFragment"
         android:name="com.yourteam.finwise.ui.main.TransactionsFragment"
         android:label="Transactions"
-        tools:layout="@layout/fragment_transactions" />
+        tools:layout="@layout/fragment_transactions">
+
+        <action
+            android:id="@+id/action_transactionsFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
 
     <fragment
         android:id="@+id/debtsFragment"
         android:name="com.yourteam.finwise.ui.main.DebtsFragment"
         android:label="Debts"
-        tools:layout="@layout/fragment_debts" />
+        tools:layout="@layout/fragment_debts">
+
+        <action
+            android:id="@+id/action_debtsFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
 
     <fragment
         android:id="@+id/forecastFragment"
         android:name="com.yourteam.finwise.ui.main.ForecastFragment"
         android:label="Forecast"
-        tools:layout="@layout/fragment_forecast" />
+        tools:layout="@layout/fragment_forecast">
+
+        <action
+            android:id="@+id/action_forecastFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
 
     <!-- Profile Fragment -->
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.yourteam.finwise.ui.main.ProfileFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+
+        <!-- Add popUpTo to clear back stack when navigating back -->
+        <action
+            android:id="@+id/action_profileFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
 
     <!-- Settings Fragment -->
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.yourteam.finwise.ui.main.SettingsFragment"
         android:label="Settings"
-        tools:layout="@layout/fragment_settings" />
+        tools:layout="@layout/fragment_settings">
+
+        <!-- Add popUpTo to clear back stack when navigating back -->
+        <action
+            android:id="@+id/action_settingsFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
 
 </navigation>

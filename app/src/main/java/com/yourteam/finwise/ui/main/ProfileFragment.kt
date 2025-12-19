@@ -10,26 +10,24 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.yourteam.finwise.R
 import com.yourteam.finwise.data.database.DatabaseHelper
 import com.yourteam.finwise.databinding.DialogChangePasswordBinding
 import com.yourteam.finwise.databinding.FragmentProfileBinding
 import com.yourteam.finwise.ui.auth.AuthActivity
 import com.yourteam.finwise.utils.SecurityUtils
-import kotlinx.coroutines.Dispatchers  // ← ADD THIS
-import kotlinx.coroutines.launch      // ← ADD THIS
-import kotlinx.coroutines.withContext  // ← ADD THIS
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.yourteam.finwise.R
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
+
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import android.widget.ImageView
@@ -70,6 +68,7 @@ class ProfileFragment : Fragment() {
         profileImageView = binding.ivProfilePicture
         setupProfilePictureClickListener()
     }
+
     private fun setupProfilePictureClickListener() {
         profileImageView.setOnClickListener {
             showImagePickerDialog()
@@ -128,6 +127,7 @@ class ProfileFragment : Fragment() {
             Log.e("ProfileFragment", "Image loading error", e)
         }
     }
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -182,9 +182,13 @@ class ProfileFragment : Fragment() {
             Log.e("ProfileFragment", "Failed to load profile picture", e)
         }
     }
+
     private fun loadUserProfile() {
         val userId = databaseHelper.getCurrentUserId()
         if (userId != -1L) {
+            // Show loading state (optional)
+            binding.tvUserEmail.text = "Loading..."
+
             // Load user details on background thread
             lifecycleScope.launch {
                 try {
@@ -192,12 +196,12 @@ class ProfileFragment : Fragment() {
                         databaseHelper.getUserById(userId)
                     }
 
-                    val transactions = withContext(Dispatchers.IO) {
-                        databaseHelper.getAllTransactions()
+                    val transactionCount = withContext(Dispatchers.IO) {
+                        databaseHelper.getTransactionCount() // Use count instead
                     }
 
-                    val debts = withContext(Dispatchers.IO) {
-                        databaseHelper.getAllDebts()
+                    val debtCount = withContext(Dispatchers.IO) {
+                        databaseHelper.getDebtCount() // Use count instead
                     }
 
                     withContext(Dispatchers.Main) {
@@ -207,22 +211,17 @@ class ProfileFragment : Fragment() {
                             binding.tvMemberSince.text = "Member since ${formatMemberSinceDate(it.createdAt)}"
                         }
 
-                        // Update transaction count
-                        binding.tvTransactionCount.text = transactions.size.toString()
-
-                        // Update debt count (only count unpaid debts)
-                        val unpaidDebts = debts.count { !it.isPaid }
-                        binding.tvDebtCount.text = unpaidDebts.toString()
-
-                        // Calculate additional statistics
-                        calculateFinancialStats(transactions, debts)
+                        // Update counts directly (much faster!)
+                        binding.tvTransactionCount.text = transactionCount.toString()
+                        binding.tvDebtCount.text = debtCount.toString()
                     }
 
                 } catch (e: Exception) {
                     Log.e("ProfileFragment", "Error loading user profile", e)
-                    // Fallback to placeholder text if there's an error
-                    binding.tvUserEmail.text = "Unable to load email"
-                    binding.tvMemberSince.text = "Member since Unknown"
+                    withContext(Dispatchers.Main) {
+                        binding.tvUserEmail.text = "Unable to load email"
+                        binding.tvMemberSince.text = "Member since Unknown"
+                    }
                 }
             }
         } else {
@@ -275,11 +274,10 @@ class ProfileFragment : Fragment() {
             showChangePasswordDialog()
         }
 
-
-
-        binding.btnSettings.setOnClickListener {
-            showSettings()
-        }
+        // Remove the Settings button click listener - handled by menu
+        // binding.btnSettings.setOnClickListener {
+        //     showSettings()
+        // }
     }
 
     private fun showChangePasswordDialog() {
@@ -393,28 +391,18 @@ class ProfileFragment : Fragment() {
         Toast.makeText(requireContext(), "Export Data feature coming soon!", Toast.LENGTH_SHORT).show()
     }
 
-    private fun showSettings() {
-        try {
-            // Navigate to SettingsFragment using Navigation Component
-            val navHostFragment =
-                requireActivity().supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-            val navController = navHostFragment.navController
-            navController.navigate(R.id.settingsFragment)
-        } catch (e: Exception) {
-            // Fallback if navigation fails
-            Toast.makeText(requireContext(), "Navigating to Settings...", Toast.LENGTH_SHORT).show()
-        }
+    // Remove showSettings method - handled by MainActivity menu
+    // private fun showSettings() { ... }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh data when fragment becomes visible
+        loadUserProfile()
+        loadProfilePicture()
     }
 
-        override fun onResume() {
-            super.onResume()
-            // Refresh data when fragment becomes visible
-            loadUserProfile()
-            loadProfilePicture()
-        }
-
-        override fun onDestroyView() {
-            super.onDestroyView()
-            _binding = null
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
+}
